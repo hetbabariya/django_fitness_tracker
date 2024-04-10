@@ -1,3 +1,4 @@
+from pyexpat import model
 from rest_framework import serializers
 from account.models import CustomUser
 
@@ -21,5 +22,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 
     def create(self, validated_data):        
         user = CustomUser.objects.create_user(**validated_data)
-        return user        
+        return user  
+
+class UserUpdateSerializer(serializers.ModelSerializer):    
+    class Meta:
+        model = CustomUser
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "age",
+            "weight",
+            "height"
+        ]
+    
+class UserLoginSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=255)
+
+    class Meta:
+        model = CustomUser
+        fields = ['email','password']
 
