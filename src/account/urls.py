@@ -1,7 +1,9 @@
 from django.urls import include, path
 from rest_framework_simplejwt import views as jwt_views
 from .views import (
+    AuthEmailView,
     ResetPassword,
+    SentAuthEmailView,
     SentResetPassword,
     UserChangePassword,
     UserProfile,
@@ -18,5 +20,7 @@ urlpatterns = [
     path('profile/',UserProfile.as_view() , name= 'profile-view'),
     path('change-password/',UserChangePassword.as_view() , name= 'change password'),
     path('sent-rest-password-link/',SentResetPassword.as_view() , name= 'sent reset password'),
-    path('rest-password/<uid>/<token>',ResetPassword.as_view() , name= 'reset password')
+    path('rest-password/<uid>/<token>',ResetPassword.as_view() , name= 'reset password'),
+    path("sent-auth-email/",SentAuthEmailView.as_view(),name="sent-auth-email",),
+    path("verifyaccount/<uid>/<token>/",AuthEmailView.as_view(),name="verifyaccount",),
 ]

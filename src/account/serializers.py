@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.exceptions import ObjectDoesNotExist
 
 from account.models import CustomUser
 from account.utils import sent_email
@@ -135,3 +136,53 @@ class UserPasswordResetSerializer(serializers.Serializer):
         except DjangoUnicodeDecodeError as identifier:
             PasswordResetTokenGenerator().check_token(user, token)
             raise Exception("token is not valid or expired")
+
+class SentAuthSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255)
+
+    class Meta:
+        fields = ["email"]
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        if CustomUser.objects.filter(email=email).exists():
+            user = CustomUser.objects.get(email=email)
+            if CustomUser.objects.filter(id=user.id, is_verified=True):
+                raise Exception("user already verified")
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = PasswordResetTokenGenerator().make_token(user)
+            link = "http://localhost:3000/api/user/verify/" + uid + "/" + token
+            body = "Click Following Link To Verify Your Account " + link
+            data = {"subject": "Verify Account", "body": body, "to_email": user.email}
+            sent_email(data)
+            return attrs
+
+        else:
+            raise Exception("user is not registered")
+
+
+class AuthSerializer(serializers.Serializer):
+
+    class Meta:
+        fields = []
+
+    def validate(self, attrs):
+        uid = self.context.get("uid")
+        token = self.context.get("token")
+        try:
+            id = smart_str(urlsafe_base64_decode(uid))
+            user = CustomUser.objects.get(pk=id)
+
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                raise serializers.ValidationError("Token is not valid or expired")
+
+            auth_user = CustomUser.objects.get(id=user.id)
+
+            if not auth_user.is_verified:
+                auth_user.is_verified = True
+                auth_user.save()
+
+        except (ObjectDoesNotExist, DjangoUnicodeDecodeError):  # Combine exceptions
+            raise serializers.ValidationError("User or token is not valid or expired")
+
+        return attrs

@@ -1,5 +1,7 @@
 from account.models import CustomUser
 from .serializers import (
+    AuthSerializer,
+    SentAuthSerializer,
     SentResetPasswordSerializer,   
     UserChangePasswordSerializer,
     UserLoginSerializer,
@@ -137,6 +139,65 @@ def reset_password(request,uid,token):
                 "status_code": 200,
             },
             status=200,
+        )
+    except Exception as e:
+        return Response(
+            {"message": f"{str(e)}", "status": "error", "status_code": 400},
+            status=400,
+        )
+
+def sent_auth_email(request):
+    try:
+        serializer = SentAuthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            {
+                "message": "link sent successfully",
+                "status": "success",
+                "status_code": 200,
+            },
+            status=200,
+        )
+
+    except Exception as e:
+        return Response(
+            {"message": f"{str(e)}", "status": "error", "status_code": 400},
+            status=400,
+        )
+
+
+def auth_email(request, uid, token):
+    try:
+        serializer = AuthSerializer(
+            data=request.data, context={"uid": uid, "token": token}
+        )
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            {
+                "message": "account verified successfully",
+                "status": "success",
+                "status_code": 200,
+            },
+            status=200,
+        )
+    except CustomUser.DoesNotExist:
+        return Response(
+            {
+                "message": "user not found",
+                "status": "error",
+                "status_code": 404,
+            },
+            status=404,
+        )
+
+    except serializers.ValidationError:
+        return Response(
+            {
+                "message": "Token is not valid or expired",
+                "status": "error",
+                "status_code": 401,
+            },
+            status=401,
         )
     except Exception as e:
         return Response(
