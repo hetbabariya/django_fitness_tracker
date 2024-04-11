@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
+from config import Config
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -70,6 +72,14 @@ TEMPLATES = [
         },
     },
 ]
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(Config.JWT_ACCESS_TOKEN_LIFETIME)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=int(Config.JWT_REFRESH_TOKEN_LIFETIME)),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
+}
 
 WSGI_APPLICATION = 'fitness_tracker.wsgi.application'
 
@@ -133,3 +143,11 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
+PASSWORD_RESET_TIMEOUT = 900
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = Config.EMAIL_FROM
+EMAIL_HOST_PASSWORD = Config.EMAIL_PASS
+EMAIL_USE_TLS = True

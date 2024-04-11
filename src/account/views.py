@@ -1,7 +1,8 @@
+from email import message
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from account.controller import (
-    user_login, user_registration , update_user
+    change_password, get_profile, reset_password, sent_reset_password_email, user_login, user_registration , update_user
     )
 
 
@@ -27,3 +28,30 @@ class UserUpdate(APIView):
         message = update_user(request)
         return message
     
+class UserProfile(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self,request):
+        message = get_profile(request)
+        return message
+    
+    
+class UserChangePassword(APIView):
+    Permission_class = [IsAuthenticated]
+    
+    def put(self , request):
+        message = change_password(request)
+        return message
+    
+class SentResetPassword(APIView):
+    
+    def post(self, request):
+        message = sent_reset_password_email(request)
+        return message
+    
+class  ResetPassword(APIView):
+    
+    def put(self, request , uid , token):
+        message = reset_password(request , uid , token)
+        return message
