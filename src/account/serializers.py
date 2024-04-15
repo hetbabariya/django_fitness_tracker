@@ -163,9 +163,6 @@ class SentAuthSerializer(serializers.Serializer):
 
 class AuthSerializer(serializers.Serializer):
 
-    class Meta:
-        fields = []
-
     def validate(self, attrs):
         uid = self.context.get("uid")
         token = self.context.get("token")
