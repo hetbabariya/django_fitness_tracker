@@ -1,6 +1,4 @@
-from dataclasses import field
-from pyexpat import model
-from django.forms import ValidationError
+from telnetlib import WONT
 from rest_framework import serializers
 
 from .models import Workout
@@ -35,22 +33,31 @@ class UpdateWorkoutSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("User is not the owner of this workout")
 
 
-class DeleteWorkoutSerializer(serializers.ModelSerializer):
-    w_id = serializers.IntegerField(write_only=True)
-
-    def validate(self, attrs):
-        w_id = attrs.get('w_id')
-        user_id = self.context.get('user')
+class DeleteWorkoutSerializer(serializers.Serializer):
+    id = serializers.IntegerField(write_only=True)
+    
+    class Meta :
+        fields = ['id']
         
-        workout = Workout.objects.filter(pk=w_id, user=user_id).first()
+    
+    def validate(self, attrs):
+        id = attrs.get('id')
+        user_id = self.context.get('user')
+
+        try :
+            Workout.objects.get(pk=id)
+        except Workout.DoesNotExist  : 
+            raise serializers.ValidationError("workout not exsist")
+        
+        workout = Workout.objects.filter(pk=id, user=user_id).first()
         if not workout:
             raise serializers.ValidationError("User is not the owner of this workout")
         
         return attrs
 
     def delete(self):
-        w_id = self.validated_data.get('w_id')
-        workout = Workout.objects.get(pk=w_id)
+        id = self.validated_data.get('id')
+        workout = Workout.objects.get(pk=id)
         workout.delete()
 
 class GetByIdWorkoutSerializer(serializers.ModelSerializer):    
@@ -67,3 +74,4 @@ class GetByIdWorkoutSerializer(serializers.ModelSerializer):
 
 class GetAllWorkoutSerializer(serializers.ListSerializer):
     child = GetByIdWorkoutSerializer(read_only=True)
+

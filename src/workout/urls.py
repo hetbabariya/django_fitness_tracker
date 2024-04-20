@@ -12,7 +12,7 @@ from .views import (
 urlpatterns=[
     path('create/',CreateWorkoutView.as_view()),
     path('update/',UpdateWorkoutView.as_view()),
-    path('delete/',DeleteWorkoutView.as_view()),
+    path('delete/<int:id>',DeleteWorkoutView.as_view()),
     path('<int:id>/',WorkoutViweById.as_view()),
     path('user/<int:id>/',WorkoutViweByUserId.as_view()),
     path('',AllWorkoutsView.as_view()),

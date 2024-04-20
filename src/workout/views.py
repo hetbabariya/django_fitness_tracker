@@ -1,6 +1,6 @@
 from email import message
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated , IsAdminUser
 from .controller import (
     create_workout,
     delete_workout,
@@ -31,8 +31,8 @@ class DeleteWorkoutView(APIView):
     
     permission_classes = [IsAuthenticated]
     
-    def delete(self , request):
-        message = delete_workout(request)
+    def delete(self , request , id):
+        message = delete_workout(request , id)
         return message
     
 class WorkoutViweById(APIView):
@@ -53,6 +53,8 @@ class WorkoutViweByUserId(APIView):
 
 
 class AllWorkoutsView(APIView):
+    
+    permission_classes = [IsAdminUser]
     
     def get(self , request):
         workouts = get_all_workout()

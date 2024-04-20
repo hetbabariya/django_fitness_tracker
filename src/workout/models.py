@@ -9,7 +9,7 @@ class Workout(models.Model):
     is_ended = models.BooleanField(default=False)
     
     def __str__(self):
-        return self.id
+        return f"{self.pk}"
     
     class Meta:
         ordering = ['created_at']

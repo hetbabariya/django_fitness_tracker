@@ -1,4 +1,3 @@
-from multiprocessing import context
 from rest_framework.exceptions import ValidationError
 
 from .models import Workout
@@ -36,10 +35,10 @@ def update_workout(request):
         return Response({"error" : str(e)},status=400)
     
 
-def delete_workout(request):
+def delete_workout(request , id):
     try:
         user_id = request.user.id
-        serializer = DeleteWorkoutSerializer(data=request.data, context={'user': user_id})
+        serializer = DeleteWorkoutSerializer(data={'id' : id}, context={'user': user_id})
         serializer.is_valid(raise_exception=True)
         serializer.delete()
         
