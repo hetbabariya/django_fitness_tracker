@@ -1,5 +1,7 @@
+from functools import partial
+from multiprocessing import context
 from rest_framework.exceptions import ValidationError
-from exercise.serializer import CreateExerciseSerializer, DeleteExerciseSerializer, GetAllExerciseSerializer, UpdateExerciseSerializer
+from exercise.serializer import CreateExerciseSerializer, DeleteExerciseSerializer, GetAllExerciseSerializer, GetExerciseByIdSerializer, UpdateExerciseSerializer
 from rest_framework.views import Response
 
 from exercise.models import Exercise
@@ -62,6 +64,42 @@ def get_all_exercise(request):
         return Response({"error": str(e)}, status=500)
     
 
-    
-            
-    
+def get_exercise_by_id(request, id):
+    try:
+        user_id = request.user.id        
+        exercise = Exercise.objects.select_related('workout').get(pk=id)
+        
+        if exercise.workout.user_id != user_id:
+            raise ValidationError("You are not the owner of this exercise.")
+
+        serializer = GetExerciseByIdSerializer(instance=exercise, context={"user": user_id})
+        return Response(serializer.data, status=200)
+
+    except Exercise.DoesNotExist:
+        return Response({"error": "Exercise does not exist."}, status=404)
+    except ValidationError as ve:
+        return Response({"error": ve.detail}, status=403)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+def get_exercise_by_workout_id(request, id):
+    try:
+        user_id = request.user.id
+        
+        exercises = Exercise.objects.select_related('workout').filter(workout=id).order_by('created_at')
+        
+        if not exercises : 
+            raise ValidationError ({"error": "No exercises found for the given workout ID."})
+        
+        for exercise in exercises:
+            if exercise.workout.user_id != user_id:
+                raise ValidationError("You are not the owner of one or more exercises.")
+
+        serializer = GetExerciseByIdSerializer(instance=exercises, context={"user": user_id}, many=True)
+        return Response(serializer.data, status=200)
+
+    except ValidationError as ve:
+        return Response({"error": ve.detail}, status=403)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

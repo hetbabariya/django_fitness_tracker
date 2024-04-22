@@ -1,4 +1,4 @@
-from exercise.controller import create_exercise, delete_exercise, get_all_exercise, update_exercise
+from exercise.controller import create_exercise, delete_exercise, get_all_exercise, get_exercise_by_id, get_exercise_by_workout_id, update_exercise
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated , IsAdminUser
 
@@ -33,3 +33,21 @@ class GetAllExerciseView(APIView):
     def get(self , requset):
         message = get_all_exercise(requset)
         return  message  
+    
+class GetExerciseByIdView(APIView):
+    
+    permission_classes  = [IsAuthenticated]
+    
+    def get(self , requset , id):
+        message = get_exercise_by_id(requset , id)
+        return message
+    
+class GetExerciseByWorkoutIdView(APIView):
+    
+    permission_classes = [IsAuthenticated]
+    
+    def get(self , requset , id):
+        message = get_exercise_by_workout_id(requset , id)
+        return message
+    
+    

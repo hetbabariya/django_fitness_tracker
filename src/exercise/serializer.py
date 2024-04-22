@@ -1,3 +1,4 @@
+from os import write
 from rest_framework import serializers
 
 from exercise.models import Exercise
@@ -15,11 +16,9 @@ class CreateExerciseSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         instance = attrs.get('workout')
         user_id = self.context.get('user')
-        
         workout_id = instance.__dict__
         workout = Workout.objects.get(pk=workout_id['id'])
-
-        if workout.user != user_id :
+        if workout.user.id != user_id :
             raise serializers.ValidationError("not own workout")
                     
         if workout.is_ended:
@@ -78,6 +77,11 @@ class GetAllExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
         fields = '__all__'
+
         
-        
-        
+
+class GetExerciseByIdSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exercise
+        fields = '__all__'
+

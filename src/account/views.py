@@ -67,3 +67,6 @@ class AuthEmailView(APIView):
     def post(self, request, uid, token):
         message = auth_email(request, uid, token)
         return message
+    
+    #TODO:
+    # if email valid then user change password and forget
