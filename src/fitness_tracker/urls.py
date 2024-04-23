@@ -22,4 +22,5 @@ urlpatterns = [
     path('user/',include('account.urls')),
     path('workout/',include('workout.urls')),
     path('exercise/',include('exercise.urls')),
+    path('progress/',include('progress.urls')),
 ]

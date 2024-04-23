@@ -1,4 +1,3 @@
-from telnetlib import WONT
 from rest_framework import serializers
 
 from .models import Workout
@@ -74,4 +73,5 @@ class GetByIdWorkoutSerializer(serializers.ModelSerializer):
 
 class GetAllWorkoutSerializer(serializers.ListSerializer):
     child = GetByIdWorkoutSerializer(read_only=True)
+
 

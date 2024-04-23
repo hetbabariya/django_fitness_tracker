@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated , IsAdminUser
 from .controller import (
     create_workout,
     delete_workout,
+    end_workout,
     get_all_workout,
     get_workout_by_id,
     get_workout_by_user_id,
@@ -60,6 +61,10 @@ class AllWorkoutsView(APIView):
         workouts = get_all_workout()
         return workouts
         
-# TODO:
 class EndWorkoutView(APIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    
+    def put(self , request , id):
+        workouts = end_workout(request , id)
+        return workouts
+        

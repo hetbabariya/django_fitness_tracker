@@ -7,18 +7,16 @@ class ExerciseList(models.Model):
         return self.exercise_type
 
 class Exercise(models.Model):
-
-    workout = models.ForeignKey('workout.Workout', on_delete=models.CASCADE, related_name='workout')
-    exercise = models.ForeignKey('exercise.ExerciseList',on_delete=models.CASCADE, null=False , related_name='exercise_type_id')
+    workout = models.ForeignKey("workout.Workout", on_delete=models.CASCADE, related_name='exercises')
+    exercise = models.ForeignKey('exercise.ExerciseList', on_delete=models.CASCADE, related_name='exercise_instances')
     sets = models.PositiveIntegerField(default=1)
     reps = models.PositiveIntegerField(default=1)
     weight = models.FloatField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        ordering = ['-created_at']
-
     def __str__(self):
         return f"{self.workout} - {self.exercise} - Sets: {self.sets}, Reps: {self.reps}, Weight: {self.weight}"
-    
+
+    class Meta:
+        ordering = ['-created_at']
