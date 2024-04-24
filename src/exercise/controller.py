@@ -5,6 +5,7 @@ from exercise.serializer import CreateExerciseSerializer, DeleteExerciseSerializ
 from rest_framework.views import Response
 
 from exercise.models import Exercise
+from progress.controller import update_progress
 
 
 
@@ -32,6 +33,9 @@ def update_exercise(request):
         serializer = UpdateExerciseSerializer(exercise, data=request.data, context={"user": request.user}, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        
+        workout_id = exercise.workout.id
+        update_progress(workout_id)
     
         return Response({"message": "Exercise updated successfully"}, status=200)
     except Exercise.DoesNotExist:
@@ -43,9 +47,14 @@ def update_exercise(request):
 
 def delete_exercise(request , id):
     try:
+        exercise = Exercise.objects.get(pk=id)
+        workout_id = exercise.workout.id
+        
         serializer = DeleteExerciseSerializer(data={'id' : id}, context={"user": request.user.id})
         serializer.is_valid(raise_exception=True)
         serializer.delete()
+        
+        update_progress(workout_id)
     
         return Response({"message": "Exercise deleted successfully"}, status=200)
     except ValidationError as ve:

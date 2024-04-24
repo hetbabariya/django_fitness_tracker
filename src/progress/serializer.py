@@ -9,3 +9,7 @@ class CreateProgressSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Progress.objects.create(**validated_data)
     
+class UpdateProgressSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model = Progress
+        fields=['total_sets', 'total_reps', 'total_weight']
