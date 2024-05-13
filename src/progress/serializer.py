@@ -38,16 +38,17 @@ class GetOneDayProgressSerializer(serializers.ModelSerializer):
         attrs.update(data)
         return attrs
 
-class GetWeekProgressSerializer(serializers.ModelSerializer):
+class GetRangeProgressSerializer(serializers.ModelSerializer):
     start_date = serializers.DateField(write_only = True)
+    end_date = serializers.DateField(write_only = True)
     
     class Meta : 
         model = Progress
-        fields=['total_duration','total_sets', 'total_reps', 'total_weight','start_date']
+        fields=['total_duration','total_sets', 'total_reps', 'total_weight','start_date','end_date']
         
     def validate(self, attrs):
         start_date = attrs.get('start_date')
-        end_date = attrs.get('start_date') + timedelta(days=7)
+        end_date = attrs.get('end_date')
         
         user = self.context.get('user')
         

@@ -4,7 +4,7 @@ from rest_framework.views import Response
 from progress.serializer import (
     CreateProgressSerializer,
     GetOneDayProgressSerializer,
-    GetWeekProgressSerializer,
+    GetRangeProgressSerializer,
     UpdateProgressSerializer
     )
 from exercise.models import Exercise
@@ -76,11 +76,11 @@ def get_one_day_progress(request) :
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
-def get_week_progress(request) : 
+def get_range_progress(request) : 
     
     try : 
         user = request.user.id
-        serializer = GetWeekProgressSerializer(data = request.data , context = {"user" : user} , partial = True)
+        serializer = GetRangeProgressSerializer(data = request.data , context = {"user" : user} , partial = True)
         serializer.is_valid(raise_exception=True)
         
         return Response(serializer.data, status=200)

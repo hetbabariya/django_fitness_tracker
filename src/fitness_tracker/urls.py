@@ -23,4 +23,5 @@ urlpatterns = [
     path('workout/',include('workout.urls')),
     path('exercise/',include('exercise.urls')),
     path('progress/',include('progress.urls')),
+    path('history/',include('history.urls')),
 ]

@@ -1,10 +1,10 @@
 from django.urls import path
 from progress.views import (
     GetOneDayProgressView,
-    GetWeekProgressView
+    GetRangeProgressView,
     )
 
 urlpatterns = [
     path('get-one-day/',GetOneDayProgressView.as_view()),
-    path('get-one-week/',GetWeekProgressView.as_view())
+    path('get-range/',GetRangeProgressView.as_view())
 ]
