@@ -1,49 +1,51 @@
+from rest_framework.views import Response
+from rest_framework import serializers
+from django.contrib.auth import authenticate
 from account.models import CustomUser
+from .utils import get_tokens_for_user
 from .serializers import (
     AuthSerializer,
-    SentAuthSerializer,
-    SentResetPasswordSerializer,   
-    UserChangePasswordSerializer,
-    UserLoginSerializer,
-    UserPasswordResetSerializer,
     UserRegistrationSerializer,
+    UserLoginSerializer,
     UserUpdateSerializer,
-    UserProfileSerializer
-    )
-from rest_framework.views import Response
-from django.contrib.auth import authenticate
-from .utils import get_tokens_for_user
-from rest_framework import serializers
+    UserProfileSerializer,
+    UserChangePasswordSerializer,
+    SentAuthSerializer,
+    SentResetPasswordSerializer,
+    UserPasswordResetSerializer
+)
 
 def user_registration(request):
-    try : 
-        
+    """
+    Handle user registration.
+    """
+    try:
         serializer = UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        
         return Response(
-            {
-                "message" : "Registation successfuly.",
-            },status=201
+            {"message": "Registration successful."},
+            status=201
         )
-    except Exception as e : 
-        return  Response({"error": str(e)}, status=400)
-    
+    except serializers.ValidationError as e:
+        return Response({"error": str(e)}, status=400)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
 def user_login(request):
     try:
         serializers = UserLoginSerializer(data=request.data)
         serializers.is_valid(raise_exception=True)
-        
+
         email = serializers.data.get('email')
         passwrod = serializers.data.get('password')
-        
+
         user = authenticate(username=email, password=passwrod)
 
         if user:
-            
+
             token = get_tokens_for_user(user)
-            
+
             return Response(
                 {
                     "message" : "User login successfully",
@@ -52,11 +54,11 @@ def user_login(request):
             )
         else :
             raise Exception("email or password is incorrect")
-    except Exception as e : 
+    except Exception as e :
         return  Response({"error": str(e)}, status=400)
-    
-    
-    
+
+
+
 def update_user(request):
     try:
         user_id = request.user.id
@@ -67,9 +69,9 @@ def update_user(request):
         return Response({"message" : "Data has been updated"}, status=200)
     except CustomUser.DoesNotExist:
         return Response({'error': 'The user does not exist'}, status=404)
-    except Exception as e : 
+    except Exception as e :
         return  Response({"error": str(e)}, status=400)
-    
+
 def get_profile(request):
     try:
         user_id = request.user.id
@@ -78,17 +80,17 @@ def get_profile(request):
         return Response(serializer.data, status=200)
     except CustomUser.DoesNotExist:
         return Response({'error': 'The user does not exist'}, status=404)
-    except Exception as e : 
+    except Exception as e :
         return  Response({"error": str(e)}, status=400)
-    
+
 def change_password(request):
     try:
         user = authenticate(email=request.user.email , password = request.data['old_password'])
-        
+
         if user:
             serializer = UserChangePasswordSerializer(data=request.data , context = {"user" : request.user})
             serializer.is_valid(raise_exception=True)
-            
+
             return Response(
                 {
                     "message" : "Password Change Successfuly"
@@ -109,7 +111,7 @@ def change_password(request):
             {"message": f"{str(e)}", "status_code": 400},
             status=400,
         )
-        
+
 def sent_reset_password_email(request):
     try:
         serializer = SentResetPasswordSerializer(data=request.data)
@@ -125,7 +127,7 @@ def sent_reset_password_email(request):
             {"message": f"{str(e)}", "status": "error", "status_code": 400},
             status=400,
         )
-        
+
 def reset_password(request,uid,token):
     try:
         serializer = UserPasswordResetSerializer(

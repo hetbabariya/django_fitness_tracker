@@ -20,3 +20,6 @@ class Exercise(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        
+    def get_exercise(self ) : 
+        return self.exercise

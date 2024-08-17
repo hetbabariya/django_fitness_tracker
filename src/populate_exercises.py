@@ -33,10 +33,11 @@ exercise_types = [
     "Kickboxing",
 ]
 
-def run() : 
+def run() :
     for exercise_type in exercise_types:
         ExerciseList.objects.create(exercise_type=exercise_type)
 
     print("Exercise types inserted successfully!")
 
-run()
+if __name__ == '__main__' :
+    run()

@@ -10,19 +10,19 @@ from progress.controller import update_progress
 
 
 def create_exercise(request):
-    try : 
+    try :
         serializer = CreateExerciseSerializer(data=request.data , context = {'user' : request.user.id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        
+
         return Response(
             {"message" : "Exercise  created successfully"},
             status=201
         )
-        
+
     except ValidationError as ve:
         return Response({"error": ve.detail}, status=400)
-    except Exception as e : 
+    except Exception as e :
         return Response({"error" : str(e)})
 
 
@@ -33,10 +33,10 @@ def update_exercise(request):
         serializer = UpdateExerciseSerializer(exercise, data=request.data, context={"user": request.user}, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        
+
         workout_id = exercise.workout.id
         update_progress(workout_id)
-    
+
         return Response({"message": "Exercise updated successfully"}, status=200)
     except Exercise.DoesNotExist:
         return Response({"error": "Exercise does not exist."}, status=404)
@@ -49,13 +49,13 @@ def delete_exercise(request , id):
     try:
         exercise = Exercise.objects.get(pk=id)
         workout_id = exercise.workout.id
-        
+
         serializer = DeleteExerciseSerializer(data={'id' : id}, context={"user": request.user.id})
         serializer.is_valid(raise_exception=True)
         serializer.delete()
-        
+
         update_progress(workout_id)
-    
+
         return Response({"message": "Exercise deleted successfully"}, status=200)
     except ValidationError as ve:
         return Response({"error": ve.detail}, status=400)
@@ -63,21 +63,21 @@ def delete_exercise(request , id):
         return Response({"error": str(e)}, status=500)
 
 def get_all_exercise(request):
-    try : 
+    try :
         exercises = Exercise.objects.all().order_by('created_at')
         serializer = GetAllExerciseSerializer(data=exercises , many = True)
         serializer.is_valid()
-        
+
         return Response(serializer.data , status=200)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
-    
+
 
 def get_exercise_by_id(request, id):
     try:
-        user_id = request.user.id        
+        user_id = request.user.id
         exercise = Exercise.objects.select_related('workout').get(pk=id)
-        
+
         if exercise.workout.user_id != user_id:
             raise ValidationError("You are not the owner of this exercise.")
 
@@ -95,12 +95,12 @@ def get_exercise_by_id(request, id):
 def get_exercise_by_workout_id(request, id):
     try:
         user_id = request.user.id
-        
+
         exercises = Exercise.objects.select_related('workout').filter(workout=id).order_by('created_at')
-        
-        if not exercises : 
+
+        if not exercises :
             raise ValidationError ({"error": "No exercises found for the given workout ID."})
-        
+
         for exercise in exercises:
             if exercise.workout.user_id != user_id:
                 raise ValidationError("You are not the owner of one or more exercises.")
